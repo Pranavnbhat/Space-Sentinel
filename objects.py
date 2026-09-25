@@ -52,3 +52,13 @@ class Rocket(SpaceObject):
             self.fuel -= amount
         else:
             self.fuel = 0
+import math
+
+
+def track_orbit(earth_x, earth_y, orbit_radius, angle, speed, dt):
+    angle += speed * dt
+
+    x = earth_x + orbit_radius * math.cos(angle)
+    y = earth_y + orbit_radius * math.sin(angle)
+
+    return x, y, angle
