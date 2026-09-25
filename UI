@@ -23,7 +23,7 @@ WARNING_COLOR = (255, 60, 60)
 DEBRIS_COLOR = (150, 150, 150)
 SAT_COLORS = [(0, 255, 150), (255, 200, 0), (255, 100, 255), (0, 200, 255)]
 
-EARTH_POS = (350, height // 2)
+EARTH_POS = (width//2, height // 2)
 EARTH_RADIUS = 40
 
 FAR_PLANET_POS = (width - 200, height // 2)
@@ -205,10 +205,9 @@ while running:
     random.seed()
 
     pygame.draw.circle(screen, EARTH_COLOR, EARTH_POS, EARTH_RADIUS)
-    draw_text(screen, "EARTH", (EARTH_POS[0] - 22, EARTH_POS[1] + EARTH_RADIUS + 6))
+    draw_text(screen, "EARTH", (EARTH_POS[0], EARTH_POS[1] + EARTH_RADIUS + 6))
 
-    pygame.draw.circle(screen, PLANET_COLOR, FAR_PLANET_POS, FAR_PLANET_RADIUS)
-    draw_text(screen, "MARS", (FAR_PLANET_POS[0] - 18, FAR_PLANET_POS[1] + FAR_PLANET_RADIUS + 6))
+    
 
     for idx, obj in enumerate(all_objects):
         obj.draw(screen, warning=idx in warning_ids)
@@ -224,9 +223,9 @@ while running:
         f"Tracked objects : {len(all_objects)}",
         f"Active warnings : {len(warning_ids)}",
         f"Rockets in transit : {len(rockets)}",
-        f"Active missions : {len(missions)}",
+        
         "",
-        "[L] Launch rocket    [M] Start mission    [ESC] Quit",
+        "[L] Launch rocket        [ESC] Quit",
     ]
     for i, line in enumerate(panel_lines):
         color = WARNING_COLOR if ("warnings" in line and warning_ids) else TEXT_COLOR
