@@ -29,6 +29,24 @@ EARTH_RADIUS = 60
 # -----------------------------
 # CREATE SPACE OBJECTS
 # -----------------------------
+planets = [
+    Planet(
+        "EARTH",
+        EARTH_X,
+        EARTH_Y,
+        radius=EARTH_RADIUS,
+        color=(40, 100, 220)
+    ),
+
+    Planet(
+        "MOON",
+        WIDTH - 120,
+        120,
+        radius=35,
+        color=(225, 225, 225)
+    )
+]
+
 
 satellites = [
     Satellite("SAT-01", 150, 0.0, 0.9),
@@ -39,11 +57,18 @@ debris_field = [
     Debris("DEBRIS-01", 100, 100, 45, 20),
     Debris("DEBRIS-02", 900, 200, -30, 35),
     Debris("DEBRIS-03", 400, 600, 20, -50),
+    Debris("DEBRIS-04", 200, 150, 35, 40),
+    Debris("DEBRIS-05", 800, 500, -45, -20),
+    Debris("DEBRIS-06", 600, 100, -25, 45),
+    Debris("DEBRIS-07", 150, 550, 50, -30),
+    Debris("DEBRIS-08", 950, 600, -40, -35),
+    Debris("DEBRIS-09", 700, 350, 30, -45),
+    Debris("DEBRIS-10", 300, 250, -35, 30),
 ]
 
 rocket = Rocket("ROCKET-01", EARTH_X, EARTH_Y + EARTH_RADIUS + 20, 0, 0)
 
-planet = Planet("MARS", WIDTH - 120, 120, radius=35, color=(200, 90, 60))
+planet = Planet("MOON", WIDTH - 120, 120, radius=35, color=(225, 225, 225))
 
 collision_manager = CollisionManager(EARTH_X, EARTH_Y, lookahead=1.5)
 
@@ -59,7 +84,7 @@ warning_font = pygame.font.Font(None, 26)
 
 
 def all_trackable_objects():
-    return satellites + debris_field + [rocket]
+    return satellites + debris_field + [rocket] +planets
 
 
 # -----------------------------
@@ -101,7 +126,23 @@ while running:
     # Predict + resolve collisions across everything we're tracking, so
     # avoiding one collision doesn't walk a satellite into another object.
     collision_manager.update(all_trackable_objects())
+    if rocket.launched:
+        rocket.update(dt)
 
+    # -------------------------
+    # DESTROY DEBRIS ON CONTACT
+    # -------------------------
+
+    all_objects = all_trackable_objects()
+
+    for debris in debris_field[:]:
+        if debris.destroy_debris(all_objects):
+            debris_field.remove(debris)
+
+    # Predict + resolve collisions across everything we're tracking
+    collision_manager.update(all_trackable_objects())
+    
+    
     # -------------------------
     # DRAW BACKGROUND
     # -------------------------
@@ -111,7 +152,7 @@ while running:
     screen.blit(title, (30, 20))
 
     subtitle = small_font.render(
-        "Press L to launch ROCKET-01 toward MARS", True, (150, 150, 170)
+        "Press L to launch ROCKET toward MOON", True, (150, 150, 170)
     )
     screen.blit(subtitle, (30, 60))
 

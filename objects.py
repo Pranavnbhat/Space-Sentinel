@@ -81,6 +81,14 @@ class Debris(SpaceObject):
             self.vx *= -1
         if self.y <= 0 or self.y >= height:
             self.vy *= -1
+            
+    def destroy_debris(self, objects):
+        for obj in objects:
+            if obj is not self:
+                if check_collision(self, obj, margin=0):
+                    return True
+
+        return False
 
 
 class Rocket(SpaceObject):
