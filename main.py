@@ -12,7 +12,7 @@ WIDTH = 1100
 HEIGHT = 750
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("OrbitFlow - Space Traffic Management")
+pygame.display.set_caption("SPACE SENTINEL - Space Traffic Management")
 
 clock = pygame.time.Clock()
 
@@ -54,6 +54,11 @@ satellites = [
 ]
 
 debris_field = [
+
+    # -------------------------
+    # NORMAL / LINEAR DEBRIS
+    # -------------------------
+
     Debris("DEBRIS-01", 100, 100, 45, 20, False),
     Debris("DEBRIS-02", 900, 200, -30, 35, False),
     Debris("DEBRIS-03", 400, 600, 20, -50, False),
@@ -64,14 +69,51 @@ debris_field = [
     Debris("DEBRIS-08", 950, 600, -40, -35, False),
     Debris("DEBRIS-09", 700, 350, 30, -45, False),
     Debris("DEBRIS-10", 300, 250, -35, 30, False),
-    
-    Debris("DEBRIS-11", 500, 200, 0, 40, True),
-    Debris("DEBRIS-12", 650, 350, -35, 0, True),
-    Debris("DEBRIS-13", 500, 500, 0, -45, True),
-    Debris("DEBRIS-14", 350, 350, 30, 0, True),
-    Debris("DEBRIS-15", 500, 150, -20, 0, True),
-]
 
+    # Debris("DEBRIS-16", 80, 300, 55, 15, False),
+    # Debris("DEBRIS-17", 1000, 350, -50, 10, False),
+    # Debris("DEBRIS-18", 250, 650, 40, -40, False),
+    # Debris("DEBRIS-19", 850, 650, -55, -25, False),
+    # Debris("DEBRIS-20", 550, 50, 20, 55, False),
+    # Debris("DEBRIS-21", 450, 700, -25, -55, False),
+    # Debris("DEBRIS-22", 50, 500, 60, -20, False),
+    # Debris("DEBRIS-23", 1050, 500, -60, -15, False),
+    # Debris("DEBRIS-24", 750, 150, -40, 30, False),
+    # Debris("DEBRIS-25", 350, 100, 35, 50, False),
+
+
+    # -------------------------
+    # ORBITING DEBRIS
+    # -------------------------
+
+    # Near SAT-01's 150px orbit
+    Debris("DEBRIS-11", 550, 375, 0, 130, True),
+    Debris("DEBRIS-12", 505, 483, -130, 0, True),
+    Debris("DEBRIS-13", 312, 496, 0, 130, True),
+    Debris("DEBRIS-14", 260, 322, 0, -130, True),
+    Debris("DEBRIS-15", 443, 231, -130, 0, True),
+
+    # Near SAT-02's 220px orbit
+    Debris("DEBRIS-26", 610, 440, 0, 130, True),
+    Debris("DEBRIS-27", 416, 595, -130, 0, True),
+    Debris("DEBRIS-28", 193, 449, 0, 130, True),
+    Debris("DEBRIS-29", 256, 209, 0, -130, True),
+    Debris("DEBRIS-30", 506, 185, -130, 0, True),
+    
+    # INNER ORBIT ~100 px
+    Debris("DEBRIS-31", 500, 375, 0, 35, True),
+    Debris("DEBRIS-32", 400, 275, -35, 0, True),
+
+    # MIDDLE ORBIT ~280 px
+    Debris("DEBRIS-33", 680, 375, 0, 35, True),
+    Debris("DEBRIS-34", 120, 375, 0, -35, True),
+    Debris("DEBRIS-35", 400, 655, -35, 0, True),
+
+    # OUTER ORBIT ~350 px
+    Debris("DEBRIS-36", 750, 375, 0, 40, True),
+    Debris("DEBRIS-37", 50, 375, 0, -40, True),
+    Debris("DEBRIS-38", 400, 25, 40, 0, True),
+]
 rocket = Rocket("ROCKET-01", EARTH_X, EARTH_Y + EARTH_RADIUS + 20, 0, 0)
 
 planet = Planet("MOON", WIDTH - 120, 120, radius=35, color=(225, 225, 225))
@@ -158,7 +200,7 @@ while running:
     # -------------------------
     screen.fill((5, 8, 20))
 
-    title = title_font.render("ORBITFLOW", True, (255, 255, 255))
+    title = title_font.render("SPACE SENTINEL", True, (255, 255, 255))
     screen.blit(title, (30, 20))
 
     subtitle = small_font.render(
