@@ -128,8 +128,10 @@ while running:
         else:
             d.update(dt)
             d.bounce_bounds(WIDTH, HEIGHT)
-        if rocket.launched:
-            rocket.update(dt)
+
+    
+    if rocket.launched:
+        rocket.update(dt)
 
     # Predict + resolve collisions across everything we're tracking, so
     # avoiding one collision doesn't walk a satellite into another object.
@@ -198,8 +200,19 @@ while running:
     # DRAW DEBRIS
     # -------------------------
     for d in debris_field:
+
+        if d.if_orbiting:
+            d.draw_debris_orbit(screen, EARTH_X, EARTH_Y)
+
         color = (255, 80, 80) if d.warning else (160, 160, 160)
-        pygame.draw.circle(screen, color, (int(d.x), int(d.y)), d.radius)
+
+        pygame.draw.circle(
+            screen,
+            color,
+            (int(d.x), int(d.y)),
+            d.radius
+        )
+
         label = small_font.render(d.name, True, color)
         screen.blit(label, (int(d.x) + 8, int(d.y) - 8))
 
