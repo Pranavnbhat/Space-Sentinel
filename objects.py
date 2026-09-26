@@ -113,7 +113,21 @@ class Debris(SpaceObject):
             earth_y
             + self.orbit_radius * math.sin(self.angle)
     )
+    
+    def predict_position(self, dt, earth_x, earth_y):
+        if not self.if_orbiting:
+            return (
+                self.x + self.vx * dt,
+                self.y + self.vy * dt
+            )
 
+        future_angle = self.angle + self.speed * dt
+
+        return (
+            earth_x + self.orbit_radius * math.cos(future_angle),
+            earth_y + self.orbit_radius * math.sin(future_angle)
+    )
+    
     def bounce_bounds(self, width, height):
         """Bounce off screen edges so debris doesn't fly off forever."""
         if self.x <= 0 or self.x >= width:
@@ -121,7 +135,7 @@ class Debris(SpaceObject):
         if self.y <= 0 or self.y >= height:
             self.vy *= -1
             
-    def draw_orbit(self, screen, earth_x, earth_y):
+    def draw_debris_orbit(self, screen, earth_x, earth_y):
         if not self.if_orbiting or not self.orbit_initialized:
             return
 
@@ -200,25 +214,85 @@ def check_collision(obj_a, obj_b, margin=15):
     """True if two objects are currently within collision range (reactive check)."""
     return obj_a.distance_to(obj_b) < (obj_a.radius + obj_b.radius + margin)
 
+#OLD PREDICTION FUNCTION IT DOESNT WORK FOR ORBITTING DEBRIS
+# def predict_collision(pos_a_now, pos_a_future, pos_b_now, pos_b_future, combined_radius, margin=15):
+    # """
+    # True if two objects moving in straight lines from their `now` to `future`
+    # positions come within (combined_radius + margin) of each other at any
+    # point along that path (predictive check, not just current distance).
+    # """
+    # steps = 10
+    # for i in range(steps + 1):
+        # t = i / steps
+        # ax = pos_a_now[0] + (pos_a_future[0] - pos_a_now[0]) * t
+        # ay = pos_a_now[1] + (pos_a_future[1] - pos_a_now[1]) * t
+        # bx = pos_b_now[0] + (pos_b_future[0] - pos_b_now[0]) * t
+        # by = pos_b_now[1] + (pos_b_future[1] - pos_b_now[1]) * t
+        # dist = math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
+        # if dist < (combined_radius + margin):
+            # return True
+    # return False
+    
+def predict_collision(obj_a, obj_b, lookahead, earth_x, earth_y, margin=15):
+    """
+    Predict whether two objects will come within collision range
+    during the lookahead period.
 
-def predict_collision(pos_a_now, pos_a_future, pos_b_now, pos_b_future, combined_radius, margin=15):
+    Satellites and orbiting debris follow their orbital paths.
+    Non-orbiting debris, rockets, and other objects use straight-line motion.
     """
-    True if two objects moving in straight lines from their `now` to `future`
-    positions come within (combined_radius + margin) of each other at any
-    point along that path (predictive check, not just current distance).
-    """
-    steps = 10
+
+    steps = 20
+
     for i in range(steps + 1):
-        t = i / steps
-        ax = pos_a_now[0] + (pos_a_future[0] - pos_a_now[0]) * t
-        ay = pos_a_now[1] + (pos_a_future[1] - pos_a_now[1]) * t
-        bx = pos_b_now[0] + (pos_b_future[0] - pos_b_now[0]) * t
-        by = pos_b_now[1] + (pos_b_future[1] - pos_b_now[1]) * t
-        dist = math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
-        if dist < (combined_radius + margin):
-            return True
-    return False
+        t = (lookahead / steps) * i
 
+        # Predict object A
+        if isinstance(obj_a, Satellite):
+            ax, ay = obj_a.predict_position(
+                t,
+                earth_x,
+                earth_y
+            )
+
+        elif isinstance(obj_a, Debris):
+            ax, ay = obj_a.predict_position(
+                t,
+                earth_x,
+                earth_y
+            )
+
+        else:
+            ax, ay = obj_a.predict_position(t)
+
+        # Predict object B
+        if isinstance(obj_b, Satellite):
+            bx, by = obj_b.predict_position(
+                t,
+                earth_x,
+                earth_y
+            )
+
+        elif isinstance(obj_b, Debris):
+            bx, by = obj_b.predict_position(
+                t,
+                earth_x,
+                earth_y
+            )
+
+        else:
+            bx, by = obj_b.predict_position(t)
+
+        # Check distance between predicted positions
+        dist = math.sqrt(
+            (ax - bx) ** 2 +
+            (ay - by) ** 2
+        )
+
+        if dist < (obj_a.radius + obj_b.radius + margin):
+            return True
+
+    return False
 
 class CollisionManager:
     """
@@ -233,27 +307,24 @@ class CollisionManager:
         self.lookahead = lookahead
         self.active_warnings = []  # list of (obj_a, obj_b) pairs currently at risk
 
-    def _future_pos(self, obj):
-        if isinstance(obj, Satellite):
-            return obj.predict_position(self.lookahead, self.earth_x, self.earth_y)
-        return obj.predict_position(self.lookahead)
-
     def update(self, objects):
         self.active_warnings = []
         satellite_threat_count = {}  # satellite -> how many threats already handled this frame
 
         n = len(objects)
+
         for i in range(n):
             for j in range(i + 1, n):
                 a = objects[i]
                 b = objects[j]
 
-                now_a, now_b = (a.x, a.y), (b.x, b.y)
-                future_a = self._future_pos(a)
-                future_b = self._future_pos(b)
-                combined_radius = a.radius + b.radius
-
-                if predict_collision(now_a, future_a, now_b, future_b, combined_radius):
+                if predict_collision(
+                    a,
+                    b,
+                    self.lookahead,
+                    self.earth_x,
+                    self.earth_y
+                ):
                     self.active_warnings.append((a, b))
                     a.warning = True
                     b.warning = True
@@ -265,13 +336,18 @@ class CollisionManager:
                         if isinstance(sat, Satellite):
                             used = satellite_threat_count.get(sat, 0)
                             offset = 35 + used * 25
+
                             sat.start_avoidance(offset)
+
                             satellite_threat_count[sat] = used + 1
 
+        # Clear warnings from objects that are no longer at risk.
         at_risk = set()
+
         for a, b in self.active_warnings:
             at_risk.add(a)
             at_risk.add(b)
+
         for obj in objects:
             if obj not in at_risk:
                 obj.warning = False
