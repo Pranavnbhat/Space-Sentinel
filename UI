@@ -16,22 +16,22 @@ font_big = pygame.font.SysFont("consolas", 24, bold=True)
 
 BG_COLOR = (4, 4, 14)
 EARTH_COLOR = (60, 120, 255)
-PLANET_COLOR = (255, 140, 60)
+MOON_COLOUR = (255,255,255)
 ORBIT_COLOR = (50, 50, 80)
 TEXT_COLOR = (220, 220, 230)
 WARNING_COLOR = (255, 60, 60)
 DEBRIS_COLOR = (150, 150, 150)
 SAT_COLORS = [(0, 255, 150), (255, 200, 0), (255, 100, 255), (0, 200, 255)]
 
-EARTH_POS = (width//2, height // 2)
+EARTH_POS = (350, height // 2)
 EARTH_RADIUS = 40
 
-FAR_PLANET_POS = (width - 200, height // 2)
-FAR_PLANET_RADIUS = 30
+MOON_POS = (width - 200, height // 2)
+MOON_RADIUS = 30
 
 WARNING_DISTANCE = 35
 
-def distance(p1, p2):
+def distance_to(p1, p2):
     return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
 
 def draw_text(surface, text, pos, color=TEXT_COLOR, font=font_small):
@@ -107,7 +107,7 @@ class Mission:
         self.speed = 0.004
         self.done = False
         self.control = (
-            (EARTH_POS[0] + FAR_PLANET_POS[0]) / 2,
+            (EARTH_POS[0] + MOON_POS[0]) / 2,
             EARTH_POS[1] - 220,
         )
 
@@ -119,15 +119,15 @@ class Mission:
 
     def position(self):
         t = self.progress
-        x = ((1 - t) ** 2) * EARTH_POS[0] + 2 * (1 - t) * t * self.control[0] + (t ** 2) * FAR_PLANET_POS[0]
-        y = ((1 - t) ** 2) * EARTH_POS[1] + 2 * (1 - t) * t * self.control[1] + (t ** 2) * FAR_PLANET_POS[1]
+        x = ((1 - t) ** 2) * EARTH_POS[0] + 2 * (1 - t) * t * self.control[0] + (t ** 2) * MOON_POS[0]
+        y = ((1 - t) ** 2) * EARTH_POS[1] + 2 * (1 - t) * t * self.control[1] + (t ** 2) * MOON_POS[1]
         return (int(x), int(y))
 
     def draw(self, surface):
         for i in range(0, 21):
             t = i / 20
-            x = ((1 - t) ** 2) * EARTH_POS[0] + 2 * (1 - t) * t * self.control[0] + (t ** 2) * FAR_PLANET_POS[0]
-            y = ((1 - t) ** 2) * EARTH_POS[1] + 2 * (1 - t) * t * self.control[1] + (t ** 2) * FAR_PLANET_POS[1]
+            x = ((1 - t) ** 2) * EARTH_POS[0] + 2 * (1 - t) * t * self.control[0] + (t ** 2) * MOON_POS[0]
+            y = ((1 - t) ** 2) * EARTH_POS[1] + 2 * (1 - t) * t * self.control[1] + (t ** 2) * MOON_POS[1]
             pygame.draw.circle(surface, (80, 80, 60), (int(x), int(y)), 1)
         pygame.draw.circle(surface, (255, 230, 120), self.position(), 5)
 
@@ -137,7 +137,7 @@ def check_collisions(objects):
         for j in range(i + 1, len(objects)):
             p1 = objects[i].position()
             p2 = objects[j].position()
-            if distance(p1, p2) < WARNING_DISTANCE:
+            if distance_to(p1, p2) < WARNING_DISTANCE:
                 warning_ids.add(i)
                 warning_ids.add(j)
                 if not objects[i].is_debris:
@@ -205,7 +205,10 @@ while running:
     random.seed()
 
     pygame.draw.circle(screen, EARTH_COLOR, EARTH_POS, EARTH_RADIUS)
-    draw_text(screen, "EARTH", (EARTH_POS[0], EARTH_POS[1] + EARTH_RADIUS + 6))
+    draw_text(screen, "EARTH", (EARTH_POS[0], EARTH_POS[1] + EARTH_RADIUS +  6))
+
+    pygame.draw.circle(screen, MOON_COLOUR, MOON_POS,MOON_RADIUS)
+    draw_text(screen, "MOON", (MOON_POS[0], MOON_POS[1] + MOON_RADIUS + 6))
 
     
 
