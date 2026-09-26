@@ -22,7 +22,7 @@ class SpaceObject:
         return math.sqrt(dx * dx + dy * dy)
 
     def predict_position(self, t):
-        """Where this object will be in t seconds, assuming current velocity."""
+        """Where this object will be in t seconds, assuming current velocity.This works for non orbitting body only"""
         return (self.x + self.vx * t, self.y + self.vy * t)
 
 
@@ -38,7 +38,7 @@ class Satellite(SpaceObject):
         # Avoidance state
         self.avoiding = False
         self.avoid_target_radius = orbit_radius
-        self.avoid_cooldown = 0.0
+        self.avoid_cooldown = 0.0                #this is just for the prototype the cooldown is set as 3 secs in real life case we would use a bool to see if its still in danger
 
     def update_orbit(self, earth_x, earth_y, dt):
         self.angle += self.speed * dt
@@ -52,7 +52,7 @@ class Satellite(SpaceObject):
     def predict_position(self, t, earth_x=None, earth_y=None):
         """Predict future orbital position. Falls back to straight-line if no earth given."""
         if earth_x is None or earth_y is None:
-            return super().predict_position(t)
+            return super().predict_position(t)              
         future_angle = self.angle + self.speed * t
         x = earth_x + self.orbit_radius * math.cos(future_angle)
         y = earth_y + self.orbit_radius * math.sin(future_angle)
@@ -202,13 +202,6 @@ class Planet(SpaceObject):
         self.color = color
 
 
-def track_orbit(earth_x, earth_y, orbit_radius, angle, speed, dt):
-    """Standalone orbit stepper (kept for backward compatibility)."""
-    angle += speed * dt
-    x = earth_x + orbit_radius * math.cos(angle)
-    y = earth_y + orbit_radius * math.sin(angle)
-    return x, y, angle
-
 
 def check_collision(obj_a, obj_b, margin=15):
     """True if two objects are currently within collision range (reactive check)."""
@@ -249,7 +242,7 @@ def predict_collision(obj_a, obj_b, lookahead, earth_x, earth_y, margin=15):
 
         # Predict object A
         if isinstance(obj_a, Satellite):
-            ax, ay = obj_a.predict_position(
+            ax, ay = obj_a.predict_position(    #ax = predicted X position of A ; ay = predicted Y position of A
                 t,
                 earth_x,
                 earth_y
@@ -314,7 +307,7 @@ class CollisionManager:
         n = len(objects)
 
         for i in range(n):
-            for j in range(i + 1, n):
+            for j in range(i + 1, n):    #goes through all objects trying to find if two of them will collide 
                 a = objects[i]
                 b = objects[j]
 
@@ -325,7 +318,7 @@ class CollisionManager:
                     self.earth_x,
                     self.earth_y
                 ):
-                    self.active_warnings.append((a, b))
+                    self.active_warnings.append((a, b))   #adds this pair to the warning list we used before 
                     a.warning = True
                     b.warning = True
 

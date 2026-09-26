@@ -15,7 +15,7 @@ WIDTH = 1100
 HEIGHT = 750
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("OrbitFlow - Space Traffic Management")
+pygame.display.set_caption("SPACE SENTINEL - Space Traffic Management")
 
 clock = pygame.time.Clock()
 
@@ -45,7 +45,7 @@ planets = [
     Planet(
         "MOON",
         WIDTH - 120,
-        120,
+        160,
         radius=35,
         color=(225, 225, 225)
     )
@@ -80,11 +80,11 @@ debris_field = [
     Debris("DEBRIS-09", 300, 680, 40, -30, False),
     Debris("DEBRIS-10", 750, 680, -40, -35, False),
 
-    Debris("DEBRIS-11", 150, 250, 50, 25, False),
-    Debris("DEBRIS-12", 1000, 550, -55, -20, False),
-    Debris("DEBRIS-13", 500, 60, 20, 55, False),
-    Debris("DEBRIS-14", 500, 700, -20, -50, False),
-    Debris("DEBRIS-15", 100, 600, 45, -35, False),
+    # Debris("DEBRIS-11", 150, 250, 50, 25, False),
+    # Debris("DEBRIS-12", 1000, 550, -55, -20, False),
+    # Debris("DEBRIS-13", 500, 60, 20, 55, False),
+    # Debris("DEBRIS-14", 500, 700, -20, -50, False),
+    # Debris("DEBRIS-15", 100, 600, 45, -35, False),
 
 
     # -------------------------
@@ -530,7 +530,7 @@ while running:
     # -------------------------
 
     title = title_font.render(
-        "ORBITFLOW",
+        "SPACE SENTINEL",
         True,
         (255, 255, 255)
     )
