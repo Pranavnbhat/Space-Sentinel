@@ -54,16 +54,22 @@ satellites = [
 ]
 
 debris_field = [
-    Debris("DEBRIS-01", 100, 100, 45, 20),
-    Debris("DEBRIS-02", 900, 200, -30, 35),
-    Debris("DEBRIS-03", 400, 600, 20, -50),
-    Debris("DEBRIS-04", 200, 150, 35, 40),
-    Debris("DEBRIS-05", 800, 500, -45, -20),
-    Debris("DEBRIS-06", 600, 100, -25, 45),
-    Debris("DEBRIS-07", 150, 550, 50, -30),
-    Debris("DEBRIS-08", 950, 600, -40, -35),
-    Debris("DEBRIS-09", 700, 350, 30, -45),
-    Debris("DEBRIS-10", 300, 250, -35, 30),
+    Debris("DEBRIS-01", 100, 100, 45, 20, False),
+    Debris("DEBRIS-02", 900, 200, -30, 35, False),
+    Debris("DEBRIS-03", 400, 600, 20, -50, False),
+    Debris("DEBRIS-04", 200, 150, 35, 40, False),
+    Debris("DEBRIS-05", 800, 500, -45, -20, False),
+    Debris("DEBRIS-06", 600, 100, -25, 45, False),
+    Debris("DEBRIS-07", 150, 550, 50, -30, False),
+    Debris("DEBRIS-08", 950, 600, -40, -35, False),
+    Debris("DEBRIS-09", 700, 350, 30, -45, False),
+    Debris("DEBRIS-10", 300, 250, -35, 30, False),
+    
+    Debris("DEBRIS-11", 500, 200, 0, 40, True),
+    Debris("DEBRIS-12", 650, 350, -35, 0, True),
+    Debris("DEBRIS-13", 500, 500, 0, -45, True),
+    Debris("DEBRIS-14", 350, 350, 30, 0, True),
+    Debris("DEBRIS-15", 500, 150, -20, 0, True),
 ]
 
 rocket = Rocket("ROCKET-01", EARTH_X, EARTH_Y + EARTH_RADIUS + 20, 0, 0)
@@ -117,11 +123,13 @@ while running:
         sat.update_orbit(EARTH_X, EARTH_Y, dt)
 
     for d in debris_field:
-        d.update(dt)
-        d.bounce_bounds(WIDTH, HEIGHT)
-
-    if rocket.launched:
-        rocket.update(dt)
+        if d.if_orbiting:
+            d.update_orbit(EARTH_X, EARTH_Y, dt)
+        else:
+            d.update(dt)
+            d.bounce_bounds(WIDTH, HEIGHT)
+        if rocket.launched:
+            rocket.update(dt)
 
     # Predict + resolve collisions across everything we're tracking, so
     # avoiding one collision doesn't walk a satellite into another object.

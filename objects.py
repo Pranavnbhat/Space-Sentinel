@@ -1,4 +1,5 @@
 import math
+import pygame 
 
 
 class SpaceObject:
@@ -72,8 +73,46 @@ class Satellite(SpaceObject):
 
 
 class Debris(SpaceObject):
-    def __init__(self, name, x, y, vx, vy):
+    def __init__(self, name, x, y, vx, vy, if_orbiting=False):
         super().__init__(name, x, y, vx, vy, radius=4)
+        self.if_orbiting = if_orbiting
+
+        if self.if_orbiting:
+            self.orbit_radius = 0
+            self.angle = 0
+            self.speed = 0
+            self.orbit_initialized = False
+            
+    def update_orbit(self, earth_x, earth_y, dt):
+        if not self.orbit_initialized:
+
+            dx = self.x - earth_x
+            dy = self.y - earth_y
+
+            self.orbit_radius = math.sqrt(dx * dx + dy * dy)
+
+            self.angle = math.atan2(dy, dx)
+
+            velocity = math.sqrt(
+                self.vx * self.vx +
+                self.vy * self.vy
+            )
+
+            self.speed = velocity / self.orbit_radius
+
+            self.orbit_initialized = True
+
+        self.angle += self.speed * dt
+
+        self.x = (
+            earth_x
+            + self.orbit_radius * math.cos(self.angle)
+        )
+
+        self.y = (
+            earth_y
+            + self.orbit_radius * math.sin(self.angle)
+    )
 
     def bounce_bounds(self, width, height):
         """Bounce off screen edges so debris doesn't fly off forever."""
@@ -81,6 +120,29 @@ class Debris(SpaceObject):
             self.vx *= -1
         if self.y <= 0 or self.y >= height:
             self.vy *= -1
+            
+    def draw_orbit(self, screen, earth_x, earth_y):
+        if not self.if_orbiting or not self.orbit_initialized:
+            return
+
+        points = []
+
+        for i in range(360):
+            angle = math.radians(i)
+
+            x = earth_x + self.orbit_radius * math.cos(angle)
+            y = earth_y + self.orbit_radius * math.sin(angle)
+
+            points.append((int(x), int(y)))
+
+        # Draw a very faint dotted orbit
+        for i in range(0, len(points), 8):
+            pygame.draw.circle(
+                screen,
+                (55, 55, 55),
+                points[i],
+                1
+            )
             
     def destroy_debris(self, objects):
         for obj in objects:
