@@ -504,3 +504,4 @@ while running:
 
 pygame.quit()
 sys.exit()
+#That is the end please install pygame using pip install pygame in python compiler.
